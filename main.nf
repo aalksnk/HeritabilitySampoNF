@@ -5,10 +5,6 @@
 
 nextflow.enable.dsl=2
 
-// Define parameters for input and output directories
-params.pthresh = 5e-8      // Default p-value threshold
-params.eqtlwindow = 5000000 
-
 // Include module files
 include { PARSE_SUMSTATS } from './modules/ParseSumstats.nf'
 include { ProcessGwas } from './modules/ProcessGwas.nf'
