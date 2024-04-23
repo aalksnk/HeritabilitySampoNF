@@ -5,6 +5,7 @@
 
 nextflow.enable.dsl=2
 
+<<<<<<< HEAD
 def helpMessage() {
     log.info"""
     =======================================================
@@ -32,6 +33,8 @@ def helpMessage() {
 
 // Define parameters for input and output directories
 
+=======
+>>>>>>> 0902833d87fc2f4f9608038da820142c035c7908
 // Include module files
 include { PARSE_SUMSTATS } from './modules/ParseSumstats.nf'
 include { ProcessGwas } from './modules/ProcessGwas.nf'
