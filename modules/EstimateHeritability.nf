@@ -19,7 +19,7 @@ process EstimateHeritability {
     """
     /ldsc/ldsc.py \
     --h2 ${sumstats} \
-    --ref-ld-chr ${ref_ld_chr}/ \
+    --ref-ld-chr ${w_ld_chr}/ \
     --w-ld-chr ${w_ld_chr}/ \
     --chisq-max 10000 \
     --out ${name}_heritability

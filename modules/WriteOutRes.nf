@@ -3,7 +3,6 @@
 process ConsolidateResults {
     container 'quay.io/cawarmerdam/ldsc:v0.3'
     errorStrategy = 'ignore'
-    executor = 'local'
 
     input:
         path log_files 

@@ -5,9 +5,31 @@
 
 nextflow.enable.dsl=2
 
+def helpMessage() {
+    log.info"""
+    =======================================================
+     HeritabilitySampoNF v${workflow.manifest.version}
+    =======================================================
+    Usage:
+    The typical command for running the pipeline is as follows:
+        nextflow run main.nf \
+        --InputDir \
+        --wLdChr \
+        -profile singularity,slurm\
+        -resume
+
+    Mandatory arguments:
+    --InputDir              Directory with parquet files.
+    --SnpRefFile              
+    --wLdChr
+    --CaseControlFile       File with case and control counts per phenotype.        
+
+    Optional arguments:
+    --OutputDir             Output directory.
+    """.stripIndent()
+}
+
 // Define parameters for input and output directories
-params.pthresh = 5e-8      // Default p-value threshold
-params.eqtlwindow = 5000000 
 
 // Include module files
 include { PARSE_SUMSTATS } from './modules/ParseSumstats.nf'
@@ -21,19 +43,41 @@ Channel
     .ifEmpty { exit 1, "Sumstats directory is empty!" }
     .set { input_files_ch }
 Channel
-    .fromPath("${params.refLdChr}/*", checkIfExists: true)
-    .ifEmpty { exit 1, "Reference LD directory is empty or files are missing!" }
-    .set { ref_ld_chr_ch }
-
+    .fromPath("${params.SnpRefFile}/*", checkIfExists: true)
+    .ifEmpty { exit 1, "SNP reference file is missing!" }
+    .set { snp_ref_ch }
 Channel
     .fromPath("${params.wLdChr}/*", checkIfExists: true)
     .ifEmpty { exit 1, "Weighted LD directory is empty or files are missing!" }
     .set { w_ld_chr_ch }
-/*Channel
+Channel
     .fromPath(params.dataDir)
     .map { file -> tuple(file.baseName.replace(".parquet.snappy", ""), file) }
-    .set { data_ch }
-*/
+    .set { case_control_ch }
+
+
+log.info """=======================================================
+HeritabilitySampoNF v${workflow.manifest.version}"
+======================================================="""
+def summary = [:]
+summary['Pipeline Name']            = 'HeritabilitySampoNF'
+summary['Pipeline Version']         = workflow.manifest.version
+summary['Working dir']              = workflow.workDir
+summary['Container Engine']         = workflow.containerEngine
+if(workflow.containerEngine) summary['Container'] = workflow.container
+summary['Current home']             = "$HOME"
+summary['Current user']             = "$USER"
+summary['Current path']             = "$PWD"
+summary['Working dir']              = workflow.workDir
+summary['Script dir']               = workflow.projectDir
+summary['Config Profile']           = workflow.profile
+summary['Sumstats folder']          = params.inputDir
+summary['Output folder']            = params.outputDir
+summary['LD folder']                = params.refLdChr
+summary['Weighted LD folder']       = params.wLdChr
+log.info summary.collect { k,v -> "${k.padRight(21)}: $v" }.join("\n")
+log.info "========================================="
+
 
 // Define the workflow
 workflow {
