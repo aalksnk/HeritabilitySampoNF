@@ -20,9 +20,10 @@ def helpMessage() {
 
     Mandatory arguments:
     --InputDir              Directory with parquet files.
-    --SnpRefFile              
-    --wLdChr
-    --CaseControlFile       File with case and control counts per phenotype.        
+    --SnpRefFile            SNP reference file with alleles information.
+    --wLdChr                LDSC LD-score folder.
+    --CaseControlFile       File with case and control counts per phenotype.
+    --LdscDir               Folder with LDSC software.
 
     Optional arguments:
     --OutputDir             Output directory.
@@ -50,6 +51,10 @@ Channel
     .fromPath("${params.wLdChr}/*", checkIfExists: true)
     .ifEmpty { exit 1, "Weighted LD directory is empty or files are missing!" }
     .set { w_ld_chr_ch }
+Channel
+    .fromPath(params.LdscDir, checkIfExists: true))
+    .ifEmpty { exit 1, "LDSC directory is empty or files are missing!" }
+    .set { ldsc_ch }
 Channel
     .fromPath(params.dataDir)
     .map { file -> tuple(file.baseName.replace(".parquet.snappy", ""), file) }
