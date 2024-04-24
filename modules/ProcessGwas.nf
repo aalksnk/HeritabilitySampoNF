@@ -12,8 +12,6 @@ process ProcessGwas {
 
     script:
         """
-        chmod +x ${ldsc}/munge_sumstats.py
-
         ./${ldsc}/munge_sumstats.py \
         --sumstats ${sumstats} \
         --out ${name.replaceAll("\\s","_")}.processed \
