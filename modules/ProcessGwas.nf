@@ -4,19 +4,20 @@ process ProcessGwas {
     container 'quay.io/cawarmerdam/ldsc:v0.3'
 
     input:
-        tuple val(name), path(sumstats), path(ref_ld_chr)  // Receives phenotype name and sumstats path from previous process
+        tuple val(name), val(prevalence), path(sumstats), path(w_ld_chr_ch), path(ldsc)  // Receives phenotype name and sumstats path from previous process
 
     output:
-        path("${name.replaceAll("\\s","_")}.processed.sumstats.gz")
+        tuple val(name), val(prevalence), path("${name.replaceAll("\\s","_")}.processed.sumstats.gz"), path(w_ld_chr_ch)
 
     script:
         """
-        bin/munge_sumstats.py \
+        chmod +x ${ldsc}/munge_sumstats.py
+
+        ./${ldsc}/munge_sumstats.py \
         --sumstats ${sumstats} \
-        --N 211658 \  // Assuming fixed sample size; adjust if dynamic sample size needed
         --out ${name.replaceAll("\\s","_")}.processed \
-        --snp variant_id \
-        --merge-alleles ${ref_ld_chr} \
+        --snp SNP \
+        --merge-alleles ${w_ld_chr_ch}/w_hm3.snplist \
         --chunksize 500000
         """
 }

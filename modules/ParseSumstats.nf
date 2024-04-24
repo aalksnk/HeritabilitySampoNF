@@ -7,29 +7,32 @@ process ParseSumstats {
     label 'R'  // Assuming 'R' label is defined in your nextflow.config for R-specific resources
 
     input:
-        path(file)
+        tuple path(file), path(snpref), path(sample_count_file), path(w_ld_chr)
 
     output:
-        tuple env(phenoname), path("processed_files/*_processed.txt")
+        tuple env(phenoname), env(prevalence), path("*_processed.txt")
 
     script:
     """
-    mkdir -p processed_files
-    Rscript --vanilla ${baseDir}/bin/parse.R ${file} > processed_files/\$(basename ${file} .parquet.snappy)_processed.txt
+    prevalence=\$(Rscript --vanilla ${baseDir}/bin/parse.R \
+    ${file} \
+    ${snpref} \
+    ${w_ld_chr}/w_hm3.snplist \
+    ${sample_count_file})
 
     # Parse phenotype name
-    phenoname=\$(ls processed_files/*_processed* | cut -d '_' -f 1)
+    phenoname=\$(ls *_processed* | cut -d '_' -f 1)
     """
 }
 
 
-workflow PARSE_SUMSTATS {
-    take:
-        data_ch  // Channel of .parquet.snappy files
+// workflow PARSE_SUMSTATS {
+//     take:
+//         data_ch  // Channel of .parquet.snappy files
 
-    main:
-        ParseSumstats(data_ch)
+//     main:
+//         ParseSumstats(data_ch)
 
-    emit:
-        processed_files_ch = ParseSumstats.out
-}
+//     emit:
+//         processed_files_ch = ParseSumstats.out
+// }

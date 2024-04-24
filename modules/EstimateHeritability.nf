@@ -6,9 +6,7 @@ process EstimateHeritability {
     
     // Define inputs
     input:
-        tuple val(name), path(sumstats) 
-        path ref_ld_chr 
-        path w_ld_chr 
+        tuple val(name), val(prevalence), path(sumstats), path(w_ld_chr) 
 
     // Define outputs
     output:
@@ -22,6 +20,8 @@ process EstimateHeritability {
     --ref-ld-chr ${w_ld_chr}/ \
     --w-ld-chr ${w_ld_chr}/ \
     --chisq-max 10000 \
+    --samp-prev ${prevalence} \
+    --pop-prev ${prevalence} \
     --out ${name}_heritability
     """
 }

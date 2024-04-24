@@ -32,9 +32,8 @@ def helpMessage() {
 
 // Define parameters for input and output directories
 
-=======
 // Include module files
-include { PARSE_SUMSTATS } from './modules/ParseSumstats.nf'
+include { ParseSumstats } from './modules/ParseSumstats.nf'
 include { ProcessGwas } from './modules/ProcessGwas.nf'
 include { EstimateHeritability } from './modules/EstimateHeritability.nf'
 include { ConsolidateResults } from './modules/WriteOutRes.nf'
@@ -49,16 +48,16 @@ Channel
     .ifEmpty { exit 1, "SNP reference file is missing!" }
     .set { snp_ref_ch }
 Channel
-    .fromPath("${params.wLdChr}/*", checkIfExists: true)
+    .fromPath(params.wLdChr, checkIfExists: true, type: 'dir')
     .ifEmpty { exit 1, "Weighted LD directory is empty or files are missing!" }
     .set { w_ld_chr_ch }
 Channel
-    .fromPath(params.LdscDir, checkIfExists: true))
+    .fromPath(params.LdscDir, checkIfExists: true, type: 'dir')
     .ifEmpty { exit 1, "LDSC directory is empty or files are missing!" }
     .set { ldsc_ch }
 Channel
-    .fromPath(params.dataDir)
-    .map { file -> tuple(file.baseName.replace(".parquet.snappy", ""), file) }
+    .fromPath(params.CaseControlFile, checkIfExists: true)
+    .ifEmpty { exit 1, "Case-control file is missing!" }
     .set { case_control_ch }
 
 
@@ -79,7 +78,7 @@ summary['Script dir']               = workflow.projectDir
 summary['Config Profile']           = workflow.profile
 summary['Sumstats folder']          = params.inputDir
 summary['Output folder']            = params.outputDir
-summary['LD folder']                = params.refLdChr
+summary['LDSC folder']              = params.LdscDir
 summary['Weighted LD folder']       = params.wLdChr
 log.info summary.collect { k,v -> "${k.padRight(21)}: $v" }.join("\n")
 log.info "========================================="
@@ -88,18 +87,17 @@ log.info "========================================="
 // Define the workflow
 workflow {
     // Run the parsing of sumstats
-    PARSE_SUMSTATS(input_files_ch)
+    ParseSumstats(input_files_ch.combine(snp_ref_ch).combine(case_control_ch).combine(w_ld_chr_ch))
     
     // Combine parsed sumstats with reference LD files before passing to GWAS processing
-    parsed_files_ch = PARSE_SUMSTATS.out
-        .combine(ref_ld_chr_ch.collect())  // Collects all ref LD files into a list and combines each with parsed files
-        .combine(w_ld_chr_ch.collect())    // Collects all weighted LD files into a list and combines each with the previous combination
+    parsed_files_ch = ParseSumstats.out
+        .combine(w_ld_chr_ch).combine(ldsc_ch)  
 
     // Process GWAS data with both ref and weighted LD files available
     process_gwas_out = ProcessGwas(parsed_files_ch)
 
     // Estimate Heritability using combined LD references
-    heritability_logs_ch = EstimateHeritability(process_gwas_out, ref_ld_chr_ch, w_ld_chr_ch)
+    heritability_logs_ch = EstimateHeritability(process_gwas_out)
 
     // Consolidate Results into a final table
     ConsolidateResults(heritability_logs_ch.collect())

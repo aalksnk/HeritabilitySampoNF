@@ -1,1 +1,6 @@
 tests
+results
+.DS_*
+.nextflow*
+work
+test_run.sh
