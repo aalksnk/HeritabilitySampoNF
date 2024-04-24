@@ -3,6 +3,8 @@
 process ConsolidateResults {
     container 'quay.io/cawarmerdam/ldsc:v0.3'
 
+    publishDir "${params.outputDir}", mode: 'copy', overwrite: true
+
     input:
         path(log_files) 
 

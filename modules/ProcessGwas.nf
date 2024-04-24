@@ -1,6 +1,7 @@
 #!/bin/bash nextflow
 
 process ProcessGwas {
+    tag "${name}"
     container 'quay.io/cawarmerdam/ldsc:v0.3'
 
     input:
