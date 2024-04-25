@@ -11,7 +11,7 @@ hapmap_list <- args[3]
 sample_count_file <- args[4]
 
 pheno <- str_replace(args[1], "\\.parquet.snappy", "")
-pheno <- str_replace(pheno, ".*_", "")
+pheno <- str_replace(pheno, "results_concat_", "")
 
 output_file <- paste0(pheno, "_processed.txt")
 
