@@ -37,6 +37,7 @@ include { ParseSumstats } from './modules/ParseSumstats.nf'
 include { ProcessGwas } from './modules/ProcessGwas.nf'
 include { EstimateHeritability } from './modules/EstimateHeritability.nf'
 include { ConsolidateResults } from './modules/WriteOutRes.nf'
+include { FinaliseResults } from './modules/FinalResults.nf'
 
 // Create Channel for initial input data files
 Channel
@@ -99,7 +100,8 @@ workflow {
     // Estimate Heritability using combined LD references
     heritability_logs_ch = EstimateHeritability(process_gwas_out)
 
-    // Consolidate Results into a final table
-    ConsolidateResults(heritability_logs_ch.collect())
-}
+    consolidate_out = ConsolidateResults(heritability_logs_ch.collect())
 
+    // Finalise Results by processing them with an R script
+    FinaliseResults(consolidate_out.combine(case_control_ch))
+}
