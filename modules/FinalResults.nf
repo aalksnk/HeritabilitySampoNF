@@ -5,13 +5,16 @@ process FinaliseResults {
     publishDir "${params.outputDir}", mode: 'copy', overwrite: true
 
     input:
-        tuple path(final_results_table), path(case_control_ch)
+        path results
+        path case_control_file
 
     output:
-        path ("final_results.tsv")
+        path("results_h2_liability.tsv")
+        path("results_h2_observed.tsv")
 
     script:
     """
-    Rscript --vanilla ${baseDir}/bin/process_results.R ${final_results_table} ${case_control_ch}
+    Rscript --vanilla ${baseDir}/bin/process_results.R final_results_table_liability.tsv ${case_control_file} results_h2_liability.tsv
+    Rscript --vanilla ${baseDir}/bin/process_results.R final_results_table_observed.tsv ${case_control_file} results_h2_observed.tsv
     """
 }
