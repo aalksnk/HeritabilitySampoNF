@@ -41,4 +41,4 @@ prev <- as.data.frame(prev)
 final_data <- merge(final_results, prev, by.x = "Phenotype", by.y = "code", all.x = TRUE)
 
 # Write to a file
-write.table(final_data, file =  "final_results.tsv", sep = "\t", row.names = FALSE, quote = FALSE)
+fwrite(final_data, args[3], sep = "\t", row.names = FALSE, quote = FALSE)
