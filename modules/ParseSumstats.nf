@@ -21,7 +21,7 @@ process ParseSumstats {
     ${sample_count_file})
 
     # Parse phenotype name
-    phenoname=\$(ls *_processed* | cut -d '_' -f 1)
+    phenoname=\$(ls *_processed* | 'sed 's/^results_concat_\\(.*\\)\\(\\.parquet\\)*\\.snappy\$/\\1/')
     """
 }
 
