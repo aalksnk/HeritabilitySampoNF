@@ -6,6 +6,7 @@ library(stringr)
 
 final_results <- fread(args[1], stringsAsFactors = FALSE)
 sample_count_file <- args[2]
+final_results$Phenotype <- str_replace(final_results$Phenotype, "_processed.txt", "")
 
 # Read and calculate prevalence
 prev <- fread(sample_count_file)
@@ -36,6 +37,10 @@ ZtoP <- function(Z, largeZ = FALSE, log10P = TRUE) {
 final_results$P_value <- ZtoP(final_results$h2 / final_results$se_h2)
 final_results <- as.data.frame(final_results)
 prev <- as.data.frame(prev)
+
+print(head(final_results))
+
+print(head(prev))
 
 # Merge cases, controls, and prevalence data
 final_data <- merge(final_results, prev, by.x = "Phenotype", by.y = "code", all.x = TRUE)
