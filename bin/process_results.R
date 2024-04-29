@@ -38,10 +38,6 @@ final_results$P_value <- ZtoP(final_results$h2 / final_results$se_h2)
 final_results <- as.data.frame(final_results)
 prev <- as.data.frame(prev)
 
-print(head(final_results))
-
-print(head(prev))
-
 # Merge cases, controls, and prevalence data
 final_data <- merge(final_results, prev, by.x = "Phenotype", by.y = "code", all.x = TRUE)
 
