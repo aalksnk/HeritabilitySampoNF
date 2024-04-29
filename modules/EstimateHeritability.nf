@@ -10,7 +10,6 @@ process EstimateHeritability {
 
     // Define outputs
     output:
-        path("${name}_heritability.log")
 
     // Script to execute
     script:
