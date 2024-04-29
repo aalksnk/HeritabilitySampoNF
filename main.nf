@@ -37,6 +37,7 @@ include { ParseSumstats } from './modules/ParseSumstats.nf'
 include { ProcessGwas } from './modules/ProcessGwas.nf'
 include { EstimateHeritability } from './modules/EstimateHeritability.nf'
 include { ConsolidateResults } from './modules/WriteOutRes.nf'
+include { FinaliseResults } from './modules/FinalResults.nf'
 
 // Create Channel for initial input data files
 Channel
@@ -86,7 +87,6 @@ log.info "========================================="
 
 // Define the workflow
 workflow {
-    // Run the parsing of sumstats
     ParseSumstats(input_files_ch.combine(snp_ref_ch).combine(case_control_ch).combine(w_ld_chr_ch))
     
     // Combine parsed sumstats with reference LD files before passing to GWAS processing
@@ -95,11 +95,13 @@ workflow {
 
     // Process GWAS data with both ref and weighted LD files available
     process_gwas_out = ProcessGwas(parsed_files_ch)
+    
+    EstimateHeritability(process_gwas_out)
 
-    // Estimate Heritability using combined LD references
-    heritability_logs_ch = EstimateHeritability(process_gwas_out)
+    // Consolidate results from both sets of logs
+    consolidate_out = ConsolidateResults(EstimateHeritability.out.collect())
+    // Finalise Results by processing them with an R script
+    FinaliseResults(consolidate_out, case_control_ch)
+} 
 
-    // Consolidate Results into a final table
-    ConsolidateResults(heritability_logs_ch.collect())
-}
 
