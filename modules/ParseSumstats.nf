@@ -21,18 +21,6 @@ process ParseSumstats {
     ${sample_count_file})
 
     # Parse phenotype name
-    phenoname=\$(ls *_processed* | 'sed 's/^results_concat_\\(.*\\)\\(\\.parquet\\)*\\.snappy\$/\\1/')
+    phenoname=\$(ls *_processed* | sed 's/^results_concat_\\(.*\\)\\(\\.parquet\\)*\\.snappy\$/\\1/')
     """
 }
-
-
-// workflow PARSE_SUMSTATS {
-//     take:
-//         data_ch  // Channel of .parquet.snappy files
-
-//     main:
-//         ParseSumstats(data_ch)
-
-//     emit:
-//         processed_files_ch = ParseSumstats.out
-// }
