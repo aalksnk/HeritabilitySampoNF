@@ -10,7 +10,7 @@ final_results$Phenotype <- str_replace(final_results$Phenotype, "_processed.txt"
 
 # Read and calculate prevalence
 prev <- fread(sample_count_file)
-prev$prevalence <- round(prev$cases / (prev$controls + prev$cases), 4)
+prev$prevalence <- round(prev$cases / (prev$controls + prev$cases), 6)
 
 # Define the ZtoP function
 ZtoP <- function(Z, largeZ = FALSE, log10P = TRUE) {
