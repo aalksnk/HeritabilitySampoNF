@@ -11,5 +11,5 @@ paths=$(ls ${original_path})
 
 for file in ${paths}
 do 
-ln -s ${original_path}/${file} ${pipeline_input_path}/${file}
+ln -sf ${original_path}/${file} ${pipeline_input_path}/${file}
 done
